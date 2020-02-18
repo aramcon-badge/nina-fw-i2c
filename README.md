@@ -1,4 +1,4 @@
-# Adafruit fork of the Arduino NINA-W102 firmware
+# Arduino NINA-W102 firmware - AdaFruit fork with I²C Support
 
 [![Build Status](https://travis-ci.com/adafruit/nina-fw.svg?branch=master)](https://travis-ci.com/adafruit/nina-fw)
 
