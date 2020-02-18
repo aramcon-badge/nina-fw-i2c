@@ -31,6 +31,7 @@ extern "C" {
 #include <WiFi.h>
 
 #include "CommandHandler.h"
+#include "i2c.h"
 
 #define SPI_BUFFER_LEN SPI_MAX_DMA_LEN
 
@@ -87,9 +88,12 @@ void setupBluetooth();
 void setup() {
   setDebug(debug);
 
+  if (debug)  ets_printf("*** I2C ON\n");
+  init_i2c();
+
   // put SWD and SWCLK pins connected to SAMD as inputs
   pinMode(15, INPUT);
-  pinMode(21, INPUT);
+//  pinMode(21, INPUT);
 
   pinMode(5, INPUT);
   if (digitalRead(5) == LOW) {
@@ -158,7 +162,8 @@ void loop() {
   if (debug)  ets_printf(".");
   // wait for a command
   memset(commandBuffer, 0x00, SPI_BUFFER_LEN);
-  int commandLength = SPIS.transfer(NULL, commandBuffer, SPI_BUFFER_LEN);
+  // int commandLength = SPIS.transfer(NULL, commandBuffer, SPI_BUFFER_LEN);
+  int commandLength = i2c_read_command(commandBuffer, SPI_BUFFER_LEN);
   if (debug)  ets_printf("%d", commandLength);
   if (commandLength == 0) {
     return;
@@ -172,7 +177,8 @@ void loop() {
   memset(responseBuffer, 0x00, SPI_BUFFER_LEN);
   int responseLength = CommandHandler.handle(commandBuffer, responseBuffer);
 
-  SPIS.transfer(responseBuffer, NULL, responseLength);
+  // SPIS.transfer(responseBuffer, NULL, responseLength);
+  i2c_send_response(responseBuffer, responseLength);
 
   if (debug) {
     dumpBuffer("RESPONSE", responseBuffer, responseLength);
